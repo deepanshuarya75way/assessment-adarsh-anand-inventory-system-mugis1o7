@@ -29,7 +29,7 @@ class Return(Base):
     default="Pending",
     nullable=False)
     created_at = Column(DateTime,
-    default=Datetime.utcnow)
+    default=DateTime)
 
     items = relationship("ReturnItem",
     back_populates="return_record",
@@ -40,7 +40,7 @@ class Return(Base):
 class ReturnItem(Base):
     __tablename__="return_items"
 
-     id = Column(UUID(as_uuid=True),
+    id = Column(UUID(as_uuid=True),
     primary_key=True,
     index=True)
 
@@ -58,7 +58,7 @@ class ReturnItem(Base):
 
     classification = Column(
         String,
-        default="Awaiting reviews"
+        default="Awaiting reviews",
         nullable = False
     ) 
 

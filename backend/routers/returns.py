@@ -61,11 +61,14 @@ db.flush()
 
 for item in data.items:
   order_item = db.execute(
-      text("""
-      SELECT id, product_name, quantity
+     text("""
+      SELECT
+       id, 
+       product_name, 
+       quantity
       FROM order_items
       WHERE id = item_id
-      AND order_id = order_id""")
+      AND order_id = :order_id"""),
       
 
      {
@@ -88,7 +91,7 @@ for item in data.items:
       ).filter(
         Return.order_id == data.order_id,
         ReturnItem.order_item_id == item.order_item_id,
-        ReturnItem.decision.in([
+        ReturnItem.decision.in_( [
           "Pending" "Accepted"
         ])
       ).all()
@@ -103,7 +106,7 @@ for item in data.items:
       )
 
 # validation
-      if.item.quantity > available_to_return:
+  if item.quantity > available_to_return:
         db.rollback()
 
         raise HTTPException(
@@ -112,12 +115,10 @@ for item in data.items:
             f"Cannot return said units"
           )
         )
-
-# give reason
-      if not item.reason.strip():
+  if not item.reason.strip(): # give reason
         db.rollback()
 
-      raise HTTPException(
+        raise HTTPException(
           status_code = 400,
           detail=(
             f"Give return reason"
@@ -133,16 +134,16 @@ for item in data.items:
           decision=default
         )
 # update the db
-      db.add(return_item)
-      db.commit()
-      db.refresh(return_record)
+db.add(return_item)
+db.commit()
+db.refresh(return_record)
 
-      return return_record
+return return_record
 
 
 # returning results
-      @router.get("/")
-      def get_returns(
+@router.get("/")
+def get_returns(
         db: Session = Depends(get_db)
       ):
 
@@ -159,11 +160,11 @@ for item in data.items:
           "items": [
             {"id": item.id,
             "order_item_id": item.order_item_id,
-            "product_name"=order_item.product_name,
-            "quantity"=item.quantity,
-            "reason"=item.reason,
-            "classification"=default,
-            "decision"=default
+            "product_name": item.product_name,
+            "quantity": item.quantity,
+            "reason": item.reason,
+            "classification": default,
+            "decision": default
             }
             for item in r.items
           ]
@@ -181,7 +182,7 @@ def decide_whether_to_return_item(
   db: Session = Depends(get_db)
 ):
 
-if data.classification not in [
+ if data.classification not in [
   "Sellable"
   "Damaged"
   "Awaiting Review"
@@ -195,7 +196,7 @@ if data.classification not in [
   "Accepted"
   "Rejected"
 ]:
-  raise HTTPException(
+   raise HTTPException(
     status_code= 400,
     detail="Decision must be done, Aceepted or Rejected"
   )
@@ -271,14 +272,14 @@ if all(
     for item in all_items
   ):
    return_record.status = "Rejected"
-   else:
+  else:
     return_record.status = "Processed"
-   else:
+else:
     return_record.status = "Under Review"
 
-   db.commit()  # Final db commit
+db.commit()  # Final db commit
 
-   return{
+return{
     "message": "Return decision updated successfully",
     "return_id": return_id,
     "item_id": item_id,

@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Optional, List
 from uuid import UUID
-
+from typing import Any
 from pydantic import BaseModel, EmailStr, field_validator, ConfigDict, Field
 
 # ---------------------------------------------------------------------------
@@ -11,40 +11,17 @@ from pydantic import BaseModel, EmailStr, field_validator, ConfigDict, Field
 
 class ReturnItemCreate(BaseModel):
     order_item_id: int
+    quantity: int = Field(gt=0)
     reason: str = Field(min_length = 1)
 
-     @field_validator("price")
-    @classmethod
-    def price_must_be_positive(cls, v: Decimal) -> Decimal:
-        if v <= 0:
-            raise ValueError("price must be greater than 0")
-        return v
-
-    @field_validator("quantity")
-    @classmethod
-    def quantity_must_be_non_negative(cls, v: int) -> int:
-        if v < 0:
-            raise ValueError("quantity must be >= 0")
-        return v
+    
 
 
 class ReturnCreate(BaseModel):
     order_id: UUID
     items: List[ReturnItemCreate]
 
-     @field_validator("price")
-    @classmethod
-    def price_must_be_positive(cls, v: Optional[Decimal]) -> Optional[Decimal]:
-        if v is not None and v <= 0:
-            raise ValueError("price must be greater than 0")
-        return v
-
-    @field_validator("quantity")
-    @classmethod
-    def quantity_must_be_non_negative(cls, v: Optional[int]) -> Optional[int]:
-        if v is not None and v < 0:
-            raise ValueError("quantity must be >= 0")
-        return v
+    
 
 
 class ReturnItemDecision(BaseModel):

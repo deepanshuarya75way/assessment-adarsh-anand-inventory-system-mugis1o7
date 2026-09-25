@@ -9,6 +9,7 @@ import Customers from './pages/Customers';
 import Orders from './pages/Orders';
 import CreateOrder from './pages/CreateOrder';
 import OrderDetail from './pages/OrderDetail';
+import Returns from "./components/Returns"
 
 function App() {
   return (

@@ -12,9 +12,63 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-
+from datetime import datetime
 from database import Base
 
+
+class Product(Base):
+    __tablename__ = "returns"
+
+    id = Column(UUID(as_uuid=True),
+    primary_key=True,
+    index=True)
+    order_id = Column(UUID(as_uuid=True),
+    nullable=False,
+    index=True)
+    status = Column(String,
+    default="Pending",
+    nullable=False)
+    created_at = Column(DateTime,
+    default=Datetime.utcnow)
+
+    items = relationship("ReturnItem",
+    back_populates="return_record",
+    cascade = "all, delete-orphan"
+      )
+
+
+class ReturnItem(Base):
+    __tablename__="return_items"
+
+     id = Column(UUID(as_uuid=True),
+    primary_key=True,
+    index=True)
+
+    return_id =Column(UUID(as_uuid=True),
+    ForeignKey("return.id"),
+    nullable=False)
+
+    order_item_id = Column(UUID(as_uuid=True), nullable=False)
+
+    product_name =  Column(String, nullable=False)
+
+    quantity = Column(Integer, nullable=False)
+
+    reason = Column(String, nullable=False)   
+
+    classification = Column(
+        String,
+        default="Awaiting reviews"
+        nullable = False
+    ) 
+
+    decision = Column(
+        String,
+        default="Pending",
+        nullable = False
+    )
+
+    return_record = relationship("Return", back_populates="items") 
 
 class Product(Base):
     __tablename__ = "products"

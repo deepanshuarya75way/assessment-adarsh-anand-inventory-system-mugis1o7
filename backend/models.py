@@ -16,7 +16,7 @@ from datetime import datetime
 from database import Base
 
 
-class Product(Base):
+class Return(Base):
     __tablename__ = "returns"
 
     id = Column(UUID(as_uuid=True),
